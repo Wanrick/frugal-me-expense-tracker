@@ -4,7 +4,8 @@
   "description": "A basic expense tracker",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier": "prettier --config ./.prettierrc --write \"src/**/*{.ts,.js,.json,.css,.scss,.html}\""
   },
   "repository": {
     "type": "git",
@@ -18,12 +19,15 @@
   "homepage": "https://github.com/Wanrick/frugal-me-expense-tracker#readme",
   "dependencies": {
     "axios": "0.24.0",
+    "dinero.js": "2.0.0-alpha.8",
     "jsonwebtoken": "8.5.1",
     "middy": "0.36.0",
+    "prettier": "^2.5.0",
     "uuid": "3.3.2",
     "winston": "3.3.3"
   },
   "devDependencies": {
+    "@dinero.js/currencies": "2.0.0-alpha.1",
     "@types/aws-lambda": "8.10.85",
     "@types/jsonwebtoken": "8.5.6",
     "@types/node": "16.11.10",

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CreateExpenseRequest",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    }
+  },
+  "required": ["description","category","amount"]
+}
