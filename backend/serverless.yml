@@ -151,15 +151,23 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: expenseId
+            AttributeType: S
+          - AttributeName: category
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+          - AttributeName: expenseId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         LocalSecondaryIndexes:
-          - IndexName: secondaryIndex
+          - IndexName: categoryIndex
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
+              - AttributeName: category
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
 

@@ -10,7 +10,7 @@ export class FileBucketUtils {
 		this.s3 = new xaws.S3({
 			signatureVersion: 'v4',
 		});
-		this.bucketName = process.env.ATTACHMENT_S3_BUCKET;
+		this.bucketName = process.env.FM_S3_BUCKET;
 	}
 
 	public getUploadUrl(bucketKey: string): string {
@@ -19,7 +19,7 @@ export class FileBucketUtils {
 		return this.s3.getSignedUrl('putObject', {
 			Bucket: this.bucketName,
 			Key: bucketKey,
-			Expires: urlExpiration,
+			Expires: urlExpiration
 		});
 	}
 
@@ -29,7 +29,7 @@ export class FileBucketUtils {
 		return this.s3.getSignedUrl('getObject', {
 			Bucket: this.bucketName,
 			Key: bucketKey,
-			Expires: urlExpiration,
+			Expires: urlExpiration
 		});
 	}
 }

@@ -63,7 +63,7 @@ export class ExpenseRepository {
 			.promise();
 	}
 
-	public async deleteExpense(userId: string, expenseId: string): Promise<void> {
+	public async deleteExpense(expenseId: string, userId: string): Promise<void> {
 		logger.info('Deleting expense', { userId, expenseId });
 		await this.documentClient
 			.delete({

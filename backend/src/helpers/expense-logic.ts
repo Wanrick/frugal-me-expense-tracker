@@ -25,6 +25,7 @@ export async function createExpense(userId: string, newExpense: CreateExpenseReq
 		category: newExpense.category,
 		amount: newExpense.amount,
 		currency: defaultCurrency,
+		invoiceUrl: "/"
 	};
 
 	const savedItem = await _expenseRepository.createExpense(newItem);
@@ -53,9 +54,9 @@ export async function updateExpense(
 	return await _expenseRepository.updateExpense(userId, expenseId, updatedExpense);
 }
 
-export async function deleteExpense(userId: string, expenseId: string): Promise<void> {
+export async function deleteExpense(expenseId: string, userId: string): Promise<void> {
 	logger.info('Deleting expense');
-	return await _expenseRepository.deleteExpense(userId, expenseId);
+	return await _expenseRepository.deleteExpense(expenseId, userId);
 }
 
 export async function createPresignedUrl(userId: string, expenseId: string): Promise<string> {
