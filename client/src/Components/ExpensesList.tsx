@@ -6,6 +6,7 @@ import {Button, Dimmer, Form, Grid, GridRow, Header, Icon, Input, Item, Label, L
 import {createExpense, deleteExpense, getExpenses, patchExpense} from '../API/ExpenseTrackerAPI'
 import Auth from '../Auth/Auth'
 import {Expense} from "../Types/Expense";
+import {Categories} from "../Types/ExpenseCategories";
 
 interface ExpensesProps {
     auth: Auth
@@ -21,18 +22,6 @@ interface ExpensesState {
     imageHoverActive: boolean
 }
 
-const categories = [
-    {key: 'h', text: 'Housing', value: 'housing'},
-    {key: 't', text: 'Transportation', value: 'transportation'},
-    {key: 'f', text: 'Food', value: 'food'},
-    {key: 'u', text: 'Utilities', value: 'utilities'},
-    {key: 'i', text: 'Insurance', value: 'insurance'},
-    {key: 'm', text: 'Medical', value: 'medical'},
-    {key: 's', text: 'Savings', value: 'savings'},
-    {key: 'd', text: 'Debt', value: 'debt'},
-    {key: 'e', text: 'Entertainment', value: 'entertainment'},
-    {key: 'o', text: 'Other', value: 'other'}
-]
 
 export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesState> {
     state: ExpensesState = {
@@ -159,13 +148,13 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                                 fluid
                                 label='Category'
                                 placeholder='Category'
-                                options={categories}
+                                options={Categories}
                                 onChange={(e: any, {value}) => this.handleCategoryChange(e, value?.toString())}
                             />
                             <Form.Field>
                                 <label>Enter Amount</label>
                                 <Input labelPosition='right' type='text' placeholder='Amount'
-                                       onChange={this.handleDescriptionChange}>
+                                       onChange={this.handleAmountChange}>
                                     <Label basic>€</Label>
                                     <input/>
                                     <Label>.00</Label>
@@ -214,7 +203,7 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                 <Item.Group relaxed>
                     {this.state.expenses.map((expense, pos) => {
                         return (
-                            <Item>
+                            <Item key={pos}>
                                 <Dimmer.Dimmable as={Item.Image} dimmed={this.state.imageHoverActive}>
                                     {this.getExpenseImage(expense)}
                                     <Dimmer active={this.state.imageHoverActive}
@@ -246,7 +235,7 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
     }
 
     private getExpenseImage(expense: Expense) {
-        if (expense.invoiceUrl && expense.invoiceUrl.length > 5) {
+        if (expense && expense.invoiceUrl && expense.invoiceUrl.length > 5) {
             return <Item.Image size='small'
                         src={expense.invoiceUrl}
                         onMouseEnter={() => this.setState({imageHoverActive: true})}
