@@ -44,6 +44,92 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
+  GetExpenses:
+    handler: src/lambda/http/get-expenses.handler
+    iamRoleStatementsName: read-expense-role
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt ExpensesTable.Arn
+    events:
+      - http:
+          method: get
+          path: expenses
+          cors: true
+          authorizer: Auth
+
+  CreateExpense:
+    handler: src/lambda/http/create-expense.handler
+    iamRoleStatementsName: create-expense-role
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt ExpensesTable.Arn
+    events:
+      - http:
+          method: post
+          path: expenses
+          cors: true
+          authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(src/requests/CreateExpenseRequest.json)}
+
+  UpdateExpense:
+    handler: src/lambda/http/update-expense.handler
+    iamRoleStatementsName: update-expense-role
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ExpensesTable.Arn
+    events:
+      - http:
+          method: patch
+          path: expenses/{expenseId}
+          cors: true
+          authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(src/requests/UpdateExpenseRequest.json)}
+
+  DeleteExpense:
+    handler: src/lambda/http/delete-expense.handler
+    iamRoleStatementsName: delete-expense-role
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt ExpensesTable.Arn
+    events:
+      - http:
+          method: delete
+          path: expenses/{expenseId}
+          cors: true
+          authorizer: Auth
+
+  GenerateInvoiceUrl:
+    handler: src/lambda/http/generate-invoice-url.handler
+    iamRoleStatementsName: generate-invoice-upload-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DescribeItem
+          - dynamodb:UpdateItem
+        Resource: !GetAtt ExpensesTable.Arn
+      - Effect: Allow
+        Action:
+          - s3:*
+        Resource: 'arn:aws:s3:::${self:provider.environment.FM_S3_BUCKET}/*'
+    events:
+      - http:
+          method: post
+          path: expenses/{expenseId}/invoice
+          cors: true
+          authorizer: Auth
+
 resources:
   Resources:
     GatewayResponseDefault4XX:
