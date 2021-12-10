@@ -29,6 +29,7 @@ provider:
     EXPENSES_DYNAMODB_TABLE: Expense-${self:provider.stage}
     FM_S3_BUCKET: wanrickw-frugal-me-expense-tracker-s3bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    SIGNED_URL_DOWNLOAD_EXPIRATION: 604800 // 7Days
 
   iam:
     role:
@@ -75,7 +76,7 @@ functions:
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(src/requests/CreateExpenseRequest.json)}
+              application/json: ${file(validation-models/CreateExpenseRequest.json)}
 
   UpdateExpense:
     handler: src/lambda/http/update-expense.handler
@@ -93,7 +94,7 @@ functions:
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(src/requests/UpdateExpenseRequest.json)}
+              application/json: ${file(validation-models/UpdateExpenseRequest.json)}
 
   DeleteExpense:
     handler: src/lambda/http/delete-expense.handler

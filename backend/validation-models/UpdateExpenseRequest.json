@@ -3,6 +3,9 @@
   "title": "UpdateExpenseRequest",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string"
+    },
     "category": {
       "type": "string"
     },

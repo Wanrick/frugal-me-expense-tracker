@@ -50,14 +50,16 @@ export class ExpenseRepository {
 					userId: userId,
 					expenseId: expenseId,
 				},
-				UpdateExpression: 'set #category = :category, #amount = :amount',
+				UpdateExpression: 'set #description = :description, #category = :category, #amount = :amount',
 				ExpressionAttributeNames: {
 					'#category': 'category',
 					'#amount': 'amount',
+					'#description': 'description'
 				},
 				ExpressionAttributeValues: {
 					':category': updatedExpense.category,
 					':amount': updatedExpense.amount,
+					':description': updatedExpense.description
 				},
 			})
 			.promise();

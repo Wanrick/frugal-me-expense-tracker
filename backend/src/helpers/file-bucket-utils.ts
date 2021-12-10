@@ -24,7 +24,7 @@ export class FileBucketUtils {
 	}
 
 	public getDownloadUrl(bucketKey: string): string {
-		const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION);
+		const urlExpiration = parseInt(process.env.SIGNED_URL_DOWNLOAD_EXPIRATION);
 
 		return this.s3.getSignedUrl('getObject', {
 			Bucket: this.bucketName,
