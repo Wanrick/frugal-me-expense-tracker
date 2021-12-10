@@ -6,6 +6,7 @@ import {Link, Route, Router, Switch} from "react-router-dom";
 import {NotFound} from "./Components/NotFound";
 import {ExpensesList} from "./Components/ExpensesList";
 import {InvoiceUpload} from "./Components/InvoiceUpload";
+import {ExpenseEdit} from "./Components/ExpenseEdit";
 
 export interface AppProps {
 }
@@ -106,6 +107,14 @@ export default class App extends Component<AppProps, AppState> {
                 />
 
                 <Route
+                    path="/expenses/:expenseId/edit"
+                    exact
+                    render={props => {
+                        return <ExpenseEdit {...props} auth={this.props.auth}/>
+                    }}
+                />
+
+                <Route
                     path="*"
                     render={props => {
                         return <NotFound {...props} auth={this.props.auth}/>
@@ -118,7 +127,7 @@ export default class App extends Component<AppProps, AppState> {
     private getLoginIcon() {
         return this.props.auth.isAuthenticated() ?
             (<Button as='div' labelPosition='right'>
-                <Button icon>
+                <Button icon disabled>
                     <Icon name='user'/>
                     Logout
                 </Button>
@@ -128,7 +137,7 @@ export default class App extends Component<AppProps, AppState> {
             </Button>)
             :
             (<Button as='div' labelPosition='right'>
-                <Button icon>
+                <Button icon disabled>
                     <Icon name='user'/>
                     Login
                 </Button>

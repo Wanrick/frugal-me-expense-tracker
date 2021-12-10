@@ -1,12 +1,12 @@
 import {History} from 'history'
-import update from 'immutability-helper'
 import * as React from 'react'
-import {Button, Dimmer, Form, Grid, GridRow, Header, Icon, Input, Item, Label, Loader} from 'semantic-ui-react'
+import {Button, Divider, Form, Grid, Header, Input, Label, Loader} from 'semantic-ui-react'
 
-import {createExpense, deleteExpense, getExpenses, patchExpense} from '../API/ExpenseTrackerAPI'
+import {createExpense, deleteExpense, getExpenses} from '../API/ExpenseTrackerAPI'
 import Auth from '../Auth/Auth'
 import {Expense} from "../Types/Expense";
 import {Categories} from "../Types/ExpenseCategories";
+import {ExpenseListItemFragment} from "./ExpenseListItemFragment";
 
 interface ExpensesProps {
     auth: Auth
@@ -19,18 +19,20 @@ interface ExpensesState {
     newExpenseCategory: string
     newExpenseAmount: number
     loadingExpenses: boolean
-    imageHoverActive: boolean
 }
 
 
 export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesState> {
-    state: ExpensesState = {
-        expenses: [],
-        newExpenseDescription: '',
-        newExpenseCategory: '',
-        newExpenseAmount: 0,
-        loadingExpenses: true,
-        imageHoverActive: false
+    constructor(props: ExpensesProps) {
+        super(props);
+        this.state = {
+            expenses: [],
+            newExpenseDescription: '',
+            newExpenseCategory: '',
+            newExpenseAmount: 0,
+            loadingExpenses: true
+        };
+        this.onUpdateClicked = this.onUpdateClicked.bind(this);
     }
 
     handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +40,7 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
     }
 
     handleCategoryChange = (event: React.SyntheticEvent<HTMLInputElement, Event>, value: string | undefined) => {
-        if (value != undefined) {
+        if (value !== undefined) {
             this.setState({newExpenseCategory: value})
         }
     }
@@ -51,7 +53,17 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
         this.props.history.push(`/expenses/${expenseId}/upload`)
     }
 
+    onUpdateClicked(expenseId: string) {
+        this.props.history.push(`/expenses/${expenseId}/edit`)
+    }
+
     onExpenseCreate = async (event: React.MouseEvent<HTMLButtonElement>) => {
+        this.setState({loadingExpenses: true})
+        if (this.state.expenses === undefined) {
+            this.setState(
+                {expenses: []}
+            )
+        }
         try {
             const newExpense = await createExpense(this.props.auth.getIdToken(), {
                 description: this.state.newExpenseDescription,
@@ -63,40 +75,10 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                 newExpenseDescription: '',
                 newExpenseCategory: '',
                 newExpenseAmount: 0,
+                loadingExpenses: false
             })
-        } catch {
+        } catch (e) {
             alert('Expense creation failed')
-        }
-    }
-
-    onExpenseDelete = async (expenseId: string) => {
-        try {
-            await deleteExpense(this.props.auth.getIdToken(), expenseId)
-            this.setState({
-                expenses: this.state.expenses.filter(expense => expense.expenseId !== expenseId)
-            })
-        } catch {
-            alert('Expense deletion failed')
-        }
-    }
-
-    onExpenseUpdate = async (pos: number) => {
-        try {
-            const expense = this.state.expenses[pos]
-            await patchExpense(this.props.auth.getIdToken(), expense.expenseId, {
-                category: this.state.newExpenseCategory,
-                amount: this.state.newExpenseAmount
-            })
-            this.setState({
-                expenses: update(this.state.expenses, {
-                    [pos]: {
-                        category: {$set: this.state.newExpenseCategory},
-                        amount: {$set: this.state.newExpenseAmount}
-                    }
-                })
-            })
-        } catch {
-            alert('Expense update failed')
         }
     }
 
@@ -108,17 +90,9 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                 loadingExpenses: false
             })
         } catch (e: any) {
+            console.log(e)
             alert(`Failed to fetch expenses: ${e.message}`)
             this.setState({
-                expenses: [{
-                    expenseId: "TESTESTEST",
-                    description: 'My Test Expense',
-                    currency: 'EUR',
-                    amount: 50,
-                    category: 'saving',
-                    userId: "USERUSERUSER",
-                    createdAt: new Date().toString()
-                }], //TODO
                 loadingExpenses: false
             })
         }
@@ -153,7 +127,7 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                             />
                             <Form.Field>
                                 <label>Enter Amount</label>
-                                <Input labelPosition='right' type='text' placeholder='Amount'
+                                <Input labelPosition='right' type='number' placeholder='Amount'
                                        onChange={this.handleAmountChange}>
                                     <Label basic>€</Label>
                                     <input/>
@@ -161,11 +135,8 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
                                 </Input>
                             </Form.Field>
                         </Form.Group>
-                        <Button.Group>
-                            <Button>Cancel</Button>
-                            <Button.Or/>
-                            <Button primary onClick={this.onExpenseCreate}>Add Expense</Button>
-                        </Button.Group>
+                        <Button color={'green'} content='Add Expense' icon='right arrow' labelPosition='right'
+                                onClick={this.onExpenseCreate}/>
                     </Form>
                 </Grid.Column>
             </Grid.Row>
@@ -176,9 +147,10 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
         if (this.state.loadingExpenses) {
             return this.renderLoading()
         }
-        if (!this.state.expenses || this.state.expenses.length == 0) {
+        if (!this.state.expenses || this.state.expenses.length === 0) {
             return (
                 <div>
+                    <Divider/>
                     <h3>No Expenses Found</h3>
                 </div>
             )
@@ -199,52 +171,10 @@ export class ExpensesList extends React.PureComponent<ExpensesProps, ExpensesSta
 
     renderExpensesList() {
         return (
-            <GridRow>
-                <Item.Group relaxed>
-                    {this.state.expenses.map((expense, pos) => {
-                        return (
-                            <Item key={pos}>
-                                <Dimmer.Dimmable as={Item.Image} dimmed={this.state.imageHoverActive}>
-                                    {this.getExpenseImage(expense)}
-                                    <Dimmer active={this.state.imageHoverActive}
-                                            onClick={() => this.onUploadClick(expense.expenseId)}>
-                                        <Icon name='upload'/>
-                                        Upload Receipt/Invoice
-                                    </Dimmer>
-                                </Dimmer.Dimmable>
-
-                                <Item.Content verticalAlign='middle'>
-                                    <Item.Header>{expense.currency} {expense.amount}</Item.Header>
-                                    <Item.Content>
-                                        <span>{expense.description}</span>
-                                    </Item.Content>
-                                    <Item.Content>
-                                        <span>{expense.category}</span>
-                                    </Item.Content>
-                                    <Item.Extra>
-                                        <Button primary floated='right'
-                                                onClick={() => this.onUploadClick(expense.expenseId)}>Upload Image</Button>
-                                    </Item.Extra>
-                                </Item.Content>
-                            </Item>
-                        )
-                    })}
-                </Item.Group>
-            </GridRow>
+            <ExpenseListItemFragment expenses={this.state.expenses}
+                                     auth={this.props.auth}
+                                     onUpdateClicked={this.onUpdateClicked}
+                                     onUploadClick={this.onUploadClick}/>
         )
-    }
-
-    private getExpenseImage(expense: Expense) {
-        if (expense && expense.invoiceUrl && expense.invoiceUrl.length > 5) {
-            return <Item.Image size='small'
-                        src={expense.invoiceUrl}
-                        onMouseEnter={() => this.setState({imageHoverActive: true})}
-                        onMouseLeave={() => this.setState({imageHoverActive: false})}/>
-        } else {
-            return <Item.Image size='small'
-                               src='https://react.semantic-ui.com/images/wireframe/image.png'
-                               onMouseEnter={() => this.setState({imageHoverActive: true})}
-                               onMouseLeave={() => this.setState({imageHoverActive: false})}/>
-        }
     }
 }
