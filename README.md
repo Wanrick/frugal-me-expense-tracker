@@ -1,3 +1,5 @@
+**This was a project for a Udacity Course on AWS Fundamentals. It has been retired.**
+
 # Frugalme Expense Tracker
 
 This is a simple expense tracker backend hosted in AWS Lambda. Written in Node.js and using Serverless Framework, it
